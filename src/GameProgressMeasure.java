@@ -48,6 +48,11 @@ public class GameProgressMeasure {
         return isTop(i) || Arrays.equals(ro[i], computeLift(i));
     }
 
+    /**
+     * Compute on iteration of lift
+     * @param i index of progress measure
+     * @return the lifted progress measure
+     */
     private int[] computeLift(int i) {
 
         boolean isEven = game.getPriority(i) % 2 == 0;
@@ -55,6 +60,12 @@ public class GameProgressMeasure {
         return computeLift(i, isEven);
     }
 
+    /**
+     * Compute on iteration of lift
+     * @param i index of progress measure
+     * @param min whether to take the min or max
+     * @return the lifted progress measure
+     */
     private int[] computeLift(int i, boolean min) {
         int v = min ? TOP : 0;
         int[] out = new int[SIZE];
@@ -77,6 +88,12 @@ public class GameProgressMeasure {
         return out;
     }
 
+    /**
+     * prog function from the definitions
+     * @param w the target state
+     * @param epv the external priority of state v
+     * @return prog(ro, v, w)
+     */
     private int[] prog(int w, int epv) {
         if (isTop(w)) return ro[w];
 
@@ -96,6 +113,12 @@ public class GameProgressMeasure {
         return out;
     }
 
+
+    /**
+     * Increase the progress measure by one
+     * @param m the progress measure
+     * @param ip the (internal) position to start
+     */
     private void increase(int[] m, int ip) {
 
         if (m[ip] == MAX_PM[ip]) {
@@ -111,7 +134,10 @@ public class GameProgressMeasure {
     }
 
 
-
+    /**
+     * Get winning set of player odd of the current progress measures
+     * @return the winning set of odd
+     */
     public BitSet get() {
         BitSet out = new BitSet(ro.length);
         for (int i = 0; i < ro.length; i++) {
@@ -120,6 +146,11 @@ public class GameProgressMeasure {
         return out;
     }
 
+    /**
+     * Test if progress measure i is a top
+     * @param i the progress measure
+     * @return true iff progress measure i is a top
+     */
     private boolean isTop(int i) {
         for (int j : ro[i]) {
             if (j != TOP) return false;

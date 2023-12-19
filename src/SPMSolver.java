@@ -18,9 +18,9 @@ public class SPMSolver {
 
         try {
             StateSpace game = Parser.parse(path + file);
-            BitSet out = Solver.solve(game, new DefaultStrategy(game.NROF_STATES));
+            BitSet oddWins = Solver.solve(game, new DefaultStrategy(game.NROF_STATES));
 
-            System.out.println(out.get(0));
+            System.out.println(oddWins.get(0));
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
