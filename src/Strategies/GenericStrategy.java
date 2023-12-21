@@ -6,7 +6,7 @@ import java.util.NoSuchElementException;
 
 public abstract class GenericStrategy implements Iterator<Integer> {
 
-    protected List<Integer> order;
+    protected int[] order;
     protected int index;
 
     public GenericStrategy() {
@@ -19,7 +19,7 @@ public abstract class GenericStrategy implements Iterator<Integer> {
 
     @Override
     public boolean hasNext() {
-        return index < order.size();
+        return index < order.length;
     }
 
     @Override
@@ -27,6 +27,6 @@ public abstract class GenericStrategy implements Iterator<Integer> {
         if (!hasNext()) {
             throw new NoSuchElementException();
         }
-        return order.get(index++);
+        return order[index++];
     }
 }

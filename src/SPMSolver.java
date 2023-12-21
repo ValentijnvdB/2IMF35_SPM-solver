@@ -3,7 +3,9 @@
     progress measure: array
  */
 
-import Strategies.DefaultStrategy;
+import Strategies.GenericStrategy;
+import Strategies.InputOrder;
+import Strategies.RandomOrder;
 
 import java.io.FileNotFoundException;
 import java.util.BitSet;
@@ -18,9 +20,12 @@ public class SPMSolver {
 
         try {
             StateSpace game = Parser.parse(path + file);
-            BitSet oddWins = Solver.solve(game, new DefaultStrategy(game.NROF_STATES));
 
-            System.out.println(oddWins.get(0));
+            GenericStrategy strategy = new InputOrder(game.getOrder());
+
+            BitSet oddWins = Solver.solve(game, strategy);
+
+            System.out.println(!oddWins.get(0));
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }

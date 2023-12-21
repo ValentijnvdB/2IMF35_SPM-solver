@@ -1,6 +1,8 @@
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
 import java.util.BitSet;
+import java.util.HashMap;
 import java.util.Scanner;
 
 public class Parser {
@@ -22,6 +24,8 @@ public class Parser {
         BitSet ownedByEven = new BitSet(nrStates);
         int maxPriority = 0;
 
+        ArrayList<Integer> inputOrder = new ArrayList<>(nrStates);
+
         scanner.nextLine();
 
         int i;
@@ -35,6 +39,10 @@ public class Parser {
             i = Integer.parseInt(split[0]);
             priority[i] = Integer.parseInt(split[1]);
             maxPriority = Integer.max(priority[i], maxPriority);
+
+            if (inputOrder.contains(i)) inputOrder.remove(i);
+            inputOrder.add(i);
+
 
             if (Integer.parseInt(split[2]) == 0) ownedByEven.set(i, true);
 
@@ -50,7 +58,12 @@ public class Parser {
 
         scanner.close();
 
-        return new StateSpace(nrStates, maxPriority, adj, priority, ownedByEven);
+        int[] order = new int[inputOrder.size()];
+        for (int j = 0; j < inputOrder.size(); j++) {
+            order[j] = inputOrder.get(j);
+        }
+
+        return new StateSpace(nrStates, maxPriority, adj, priority, ownedByEven, order);
     }
 
 }

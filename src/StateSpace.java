@@ -7,18 +7,22 @@ public class StateSpace {
 
     private final int[] priority;
 
+    private final int[] order;
+
     private final BitSet ownedByEven;
 
     public final int NROF_STATES;
     public final int MAX_PRIORITY;
 
-    public StateSpace(int nrStates, int maxPriority, int[][] adj, int[] priority, BitSet ownedByEven) {
+    public StateSpace(int nrStates, int maxPriority, int[][] adj, int[] priority, BitSet ownedByEven, int[] order) {
         this.NROF_STATES = nrStates;
         this.MAX_PRIORITY = maxPriority;
         this.adj = adj;
         this.priority = priority;
         this.ownedByEven = ownedByEven;
+        this.order = order;
     }
+
 
     public int getPriority(int i) {
         return priority[i];
@@ -47,6 +51,10 @@ public class StateSpace {
             out[k] = frequencyMap.get(k);
         }
         return out;
+    }
+
+    public int[] getOrder() {
+        return order;
     }
 
 

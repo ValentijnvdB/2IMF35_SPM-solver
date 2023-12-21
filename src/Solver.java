@@ -34,7 +34,7 @@ public class Solver {
             }
 
         // keep iterating over all states until all states are stable
-        } while (notStable.isEmpty());
+        } while (!notStable.isEmpty());
 
         return ro.get();
     }
