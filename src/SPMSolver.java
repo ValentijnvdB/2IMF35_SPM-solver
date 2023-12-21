@@ -21,11 +21,13 @@ public class SPMSolver {
         try {
             StateSpace game = Parser.parse(path + file);
 
-            GenericStrategy strategy = new InputOrder(game.getOrder());
+            GenericStrategy inOrder = new InputOrder(game.getOrder());
+            GenericStrategy random = new RandomOrder(game.NROF_STATES);
 
-            BitSet oddWins = Solver.solve(game, strategy);
+            BitSet oddWins = Solver.solve(game, random);
 
-            System.out.println(!oddWins.get(0));
+            System.out.println("NrStates = " + game.NROF_STATES);
+            System.out.println(oddWins);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }

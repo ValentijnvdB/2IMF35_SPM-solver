@@ -3,7 +3,7 @@ package Strategies;
 public class InputOrder extends GenericStrategy {
 
     public InputOrder(int[] inputOrder) {
-        super();
-        order = inputOrder.clone();
+        super(1);
+        order[0] = inputOrder;
     }
 }

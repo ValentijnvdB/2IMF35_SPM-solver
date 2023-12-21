@@ -17,24 +17,32 @@ public class Solver {
         int s;
         BitSet notStable;
 
-        do {
-            notStable = new BitSet(game.NROF_STATES);
 
-            // iterate over all states according to the strategy
-            while (strategy.hasNext()) {
-                s = strategy.next();
+        while (strategy.hasNextPhase()) {
 
-                // repeat lift until progress measure s is stable
-                while (!ro.lift(s)) {
+            do {
 
-                    // ASSERT progress measure s was not stable after one lift
-                    notStable.set(s, true);
+                notStable = new BitSet(game.NROF_STATES);
+                strategy.reset();
 
+                // iterate over all states according to the strategy
+                while (strategy.hasNext()) {
+                    s = strategy.next();
+
+                    // repeat lift until progress measure s is stable
+                    while (!ro.lift(s)) {
+
+                        // ASSERT progress measure s was not stable after one lift
+                        notStable.set(s, true);
+
+                    }
                 }
-            }
 
-        // keep iterating over all states until all states are stable
-        } while (!notStable.isEmpty());
+                // keep iterating over all states until all states are stable
+            } while (!notStable.isEmpty());
+
+            strategy.nextPhase();
+        }
 
         return ro.get();
     }
