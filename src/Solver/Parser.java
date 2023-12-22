@@ -2,13 +2,14 @@ package Solver;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.Scanner;
 
 public class Parser {
 
-    public static StateSpace parse(String path) throws FileNotFoundException {
+    public static StateSpace parse(String path) throws FileNotFoundException, ParseException {
 
         Scanner scanner = new Scanner(new File(path));
         String line = scanner.next();
@@ -38,6 +39,7 @@ public class Parser {
             split = line.split("\\s+");
 
             i = Integer.parseInt(split[0]);
+            if (i >= nrStates) throw new ParseException("State identifier " + i + " larger than specified largest state identifier!", i);
             priority[i] = Integer.parseInt(split[1]);
             maxPriority = Integer.max(priority[i], maxPriority);
 

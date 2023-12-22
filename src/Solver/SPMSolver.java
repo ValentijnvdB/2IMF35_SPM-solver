@@ -28,7 +28,7 @@ public class SPMSolver {
 
             System.out.println("NrStates = " + game.NROF_STATES);
             System.out.println(oddWins);
-        } catch (FileNotFoundException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

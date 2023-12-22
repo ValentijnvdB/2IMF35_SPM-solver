@@ -4,13 +4,26 @@ import Solver.StateSpace;
 
 import java.util.*;
 
+/**
+ * Lasso strategy
+ * <p>
+ * Finds lassos of states that
+ *  - are all owned by odd
+ *  - where the least priority in the loop is odd
+ * <p>
+ *  Then lifts in the order
+ *  1. smallest to largest loop
+ *  2. paths that are part of a lasso
+ *  3. paths of odd owned states that end in a lasso
+ *  4. remainder in order from small to large
+ */
 public class LassoStrategy extends GenericStrategy {
 
     private static final LassoComparator comparator =  new LassoComparator();
 
     private final StateSpace game;
     public LassoStrategy(StateSpace game) {
-        NROF_PHASES = 1;
+        NROF_PHASES = 0;
         this.game = game;
         init();
     }
@@ -26,14 +39,16 @@ public class LassoStrategy extends GenericStrategy {
     private void init() {
         BitSet seen = new BitSet(game.NROF_STATES);
         BitSet partOfLasso = new BitSet(game.NROF_STATES);
+        HashMap<Integer, Lasso> containedIn = new HashMap<>();
 
         PriorityQueue<Lasso> queue = new PriorityQueue<>(comparator);
         int i = -1;
         while (seen.cardinality() < game.NROF_STATES) {
             i = seen.nextClearBit(i+1);
-            queue.addAll(findLasso(new ArrayList<>(), i, seen, partOfLasso));
+            queue.addAll(findLasso(new ArrayList<>(), i, seen, partOfLasso, containedIn));
         }
 
+        if (partOfLasso.cardinality() < game.NROF_STATES) NROF_PHASES++;
         // Setup phases
         order = new int[NROF_PHASES][];
 
@@ -63,13 +78,15 @@ public class LassoStrategy extends GenericStrategy {
 
         // remainder
         int r = game.NROF_STATES - partOfLasso.cardinality();
-        int[] remainder = new int[r];
-        int s = -1;
-        for (int j = 0; j < r; j++) {
-            s = partOfLasso.nextClearBit(s+1);
-            remainder[j] = s;
+        if (r > 0) {
+            int[] remainder = new int[r];
+            int s = -1;
+            for (int j = 0; j < r; j++) {
+                s = partOfLasso.nextClearBit(s + 1);
+                remainder[j] = s;
+            }
+            order[i] = remainder;
         }
-        order[i] = remainder;
     }
 
     /**
@@ -80,7 +97,7 @@ public class LassoStrategy extends GenericStrategy {
      * @param partOfLasso Which states are already part of lasso
      * @return An ArrayList of found lassos
      */
-    private ArrayList<Lasso> findLasso(ArrayList<Integer> path, int v, BitSet seen, BitSet partOfLasso) {
+    private ArrayList<Lasso> findLasso(ArrayList<Integer> path, int v, BitSet seen, BitSet partOfLasso, HashMap<Integer, Lasso> containedIn) {
 
 
         if (game.isOwnedByEven(v)) {
@@ -102,7 +119,10 @@ public class LassoStrategy extends GenericStrategy {
                 if (loop.length > 0) NROF_PHASES++;
 
                 ArrayList<Lasso> out = new ArrayList<>();
-                out.add(new Lasso(beforeLoop, loop));
+                Lasso lasso = new Lasso(beforeLoop, loop, null);
+                out.add(lasso);
+                for(int k : lasso.loop()) containedIn.put(k, lasso);
+                for(int k : lasso.path()) containedIn.put(k, lasso);
                 return out;
             } else {
                 return new ArrayList<>();
@@ -114,9 +134,12 @@ public class LassoStrategy extends GenericStrategy {
             if (partOfLasso.get(v)) {
                 int[] beforeLoop = listToArray(path, 0, path.size(), partOfLasso);
 
-                if (beforeLoop.length > 0) NROF_PHASES++;
-
-                out.add(new Lasso(beforeLoop, new int[]{}));
+                if (beforeLoop.length > 0) {
+                    NROF_PHASES++;
+                    Lasso lasso = new Lasso(beforeLoop, new int[]{}, containedIn.get(v));
+                    out.add( lasso );
+                    for (int k : lasso.path()) containedIn.put(k, lasso);
+                }
             }
 
             return out;
@@ -130,7 +153,7 @@ public class LassoStrategy extends GenericStrategy {
             // Go over all edges of (v, w)
             for (int w : outEdges) {
                 if (game.isOwnedByOdd(w)) {
-                    lassos.addAll(findLasso(path, w, seen, partOfLasso));
+                    lassos.addAll(findLasso(path, w, seen, partOfLasso, containedIn));
                     break;
                 }
             }

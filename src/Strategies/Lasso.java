@@ -1,6 +1,8 @@
 package Strategies;
 
-public record Lasso(int[] path, int[] loop) {
+import java.util.ArrayList;
+
+public record Lasso(int[] path, int[] loop, Lasso dependsOn) {
 
     public int length() {
         return path.length + loop.length;
@@ -14,8 +16,18 @@ public record Lasso(int[] path, int[] loop) {
         return path.length;
     }
 
+    public boolean fullLasso() {
+        return loop.length > 0;
+    }
+
+    public boolean dependsOn(Lasso other) {
+        return this.dependsOn.equals(other);
+    }
+
     @Override
     public boolean equals(Object o) {
+        if (this == o) return true;
+
         if (o instanceof Lasso other) {
             if (this.path.length == other.path.length && this.loop.length == other.loop.length) {
 
