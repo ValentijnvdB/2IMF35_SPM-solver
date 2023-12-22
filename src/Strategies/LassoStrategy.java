@@ -49,6 +49,7 @@ public class LassoStrategy extends GenericStrategy {
         }
 
         if (partOfLasso.cardinality() < game.NROF_STATES) NROF_PHASES++;
+
         // Setup phases
         order = new int[NROF_PHASES][];
 
