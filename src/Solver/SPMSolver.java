@@ -5,7 +5,6 @@ import Strategies.InputOrder;
 import Strategies.LassoStrategy;
 import Strategies.RandomOrder;
 
-import java.io.FileNotFoundException;
 import java.util.BitSet;
 
 public class SPMSolver {
