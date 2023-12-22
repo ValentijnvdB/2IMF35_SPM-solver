@@ -1,3 +1,5 @@
+package Solver;
+
 import java.util.BitSet;
 import java.util.HashMap;
 
@@ -30,6 +32,10 @@ public class StateSpace {
 
     public boolean isOwnedByEven(int i) {
         return ownedByEven.get(i);
+    }
+
+    public boolean isOwnedByOdd(int i) {
+        return !isOwnedByEven(i);
     }
 
     public int getOwner(int i) {

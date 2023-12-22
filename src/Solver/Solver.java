@@ -1,3 +1,5 @@
+package Solver;
+
 import Strategies.GenericStrategy;
 
 import java.util.BitSet;
