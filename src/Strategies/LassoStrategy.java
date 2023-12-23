@@ -1,6 +1,5 @@
 package Strategies;
 
-import Solver.SimpleLogger;
 import Solver.StateSpace;
 
 import java.util.*;
@@ -21,21 +20,12 @@ public class LassoStrategy extends GenericStrategy {
 
     private final PriorityQueue<OddPath> queue;
 
-    private int[] phase;
-
-    private int curPhase;
-
-    private final int NROF_PHASES;
-
     private final StateSpace game;
     public LassoStrategy(StateSpace game) {
         this.game = game;
         queue = new PriorityQueue<>(new OddPathComparator());
         init();
-        NROF_PHASES = queue.size();
-        curPhase = 0;
     }
-
 
 
     /**
@@ -180,30 +170,14 @@ public class LassoStrategy extends GenericStrategy {
         return out;
     }
 
+
     @Override
-    protected int[] getPhase() {
-        return phase;
+    public boolean hasNext() {
+        return !queue.isEmpty();
     }
 
     @Override
-    public void nextPhase() {
-
-        if (hasNextPhase()) phase = Objects.requireNonNull(queue.poll()).path();
-        curPhase++;
-
-        if (phase == null) {
-            if (hasNextPhase()) {
-                SimpleLogger.warning("Phase is null, skipping and trying next phase.");
-                nextPhase();
-            } else {
-                SimpleLogger.warning("Phase is null, this was the last phase.");
-                phase = new int[0];
-            }
-        }
-    }
-
-    @Override
-    public boolean hasNextPhase() {
-        return curPhase < NROF_PHASES;
+    public int[] next() {
+        return Objects.requireNonNull(queue.poll()).path();
     }
 }

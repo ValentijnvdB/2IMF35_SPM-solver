@@ -19,22 +19,20 @@ public class Solver {
         BitSet notStable;
 
 
-        while (strategy.hasNextPhase()) {
-
-            strategy.nextPhase();
+        for (int[] phase : strategy) {
 
             do {
 
                 notStable = new BitSet(game.NROF_STATES);
 
                 // iterate over all states according to the strategy
-                for (int s : strategy) {
+                for (int v : phase) {
 
                     // repeat lift until progress measure s is stable
-                    while (!ro.lift(s)) {
+                    while (!ro.lift(v)) {
 
                         // ASSERT progress measure s was not stable after one lift
-                        notStable.set(s, true);
+                        notStable.set(v, true);
 
                     }
                 }

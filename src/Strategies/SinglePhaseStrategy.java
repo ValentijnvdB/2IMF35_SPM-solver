@@ -10,17 +10,13 @@ public class SinglePhaseStrategy extends GenericStrategy {
     }
 
     @Override
-    protected int[] getPhase() {
-        return order;
-    }
-
-    @Override
-    public void nextPhase() {
-        done = true;
-    }
-
-    @Override
-    public boolean hasNextPhase() {
+    public boolean hasNext() {
         return !done;
+    }
+
+    @Override
+    public int[] next() {
+        done = true;
+        return order;
     }
 }

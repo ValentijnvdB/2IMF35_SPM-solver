@@ -2,16 +2,10 @@ package Strategies;
 
 import java.util.Iterator;
 
-public abstract class GenericStrategy implements Iterable<Integer> {
-
-    protected abstract int[] getPhase();
-
-    public abstract void nextPhase();
-
-    public abstract boolean hasNextPhase();
+public abstract class GenericStrategy implements Iterator<int[]>, Iterable<int[]> {
 
     @Override
-    public Iterator<Integer> iterator() {
-        return new PhaseIterator(this.getPhase());
+    public Iterator<int[]> iterator() {
+        return this;
     }
 }

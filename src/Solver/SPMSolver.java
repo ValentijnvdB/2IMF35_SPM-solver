@@ -23,7 +23,7 @@ public class SPMSolver {
             GenericStrategy random = new RandomOrder(game.NROF_STATES);
             GenericStrategy lasso = new LassoStrategy(game);
 
-            BitSet oddWins = Solver.solve(game, inOrder);
+            BitSet oddWins = Solver.solve(game, lasso);
 
             System.out.println("NrStates = " + game.NROF_STATES);
             System.out.println(oddWins);
