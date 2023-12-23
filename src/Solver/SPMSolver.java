@@ -23,12 +23,12 @@ public class SPMSolver {
             GenericStrategy random = new RandomOrder(game.NROF_STATES);
             GenericStrategy lasso = new LassoStrategy(game);
 
-            BitSet oddWins = Solver.solve(game, random);
+            BitSet oddWins = Solver.solve(game, inOrder);
 
             System.out.println("NrStates = " + game.NROF_STATES);
             System.out.println(oddWins);
         } catch (Exception e) {
-            e.printStackTrace();
+            SimpleLogger.error(e);
         }
     }
 

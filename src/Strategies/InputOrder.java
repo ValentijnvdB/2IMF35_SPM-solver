@@ -1,9 +1,9 @@
 package Strategies;
 
-public class InputOrder extends GenericStrategy {
+public class InputOrder extends SinglePhaseStrategy {
 
     public InputOrder(int[] inputOrder) {
-        super(1);
-        order[0] = inputOrder;
+        super();
+        order = inputOrder;
     }
 }

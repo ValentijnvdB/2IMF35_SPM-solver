@@ -1,5 +1,6 @@
 package Strategies;
 
+import Solver.SimpleLogger;
 import Solver.StateSpace;
 
 import java.util.*;
@@ -13,30 +14,36 @@ import java.util.*;
  * <p>
  *  Then lifts in the order
  *  1. smallest to largest loop
- *  2. paths that are part of a lasso
- *  3. paths of odd owned states that end in a lasso
- *  4. remainder in order from small to large
+ *  2. paths in descending order w.r.t depends on relation
+ *  3. remainder in order from small to large identifier
  */
 public class LassoStrategy extends GenericStrategy {
 
-    private static final LassoComparator comparator =  new LassoComparator();
+    private final PriorityQueue<OddPath> queue;
 
-    private PriorityQueue<OddPath> queue;
+    private int[] phase;
+
+    private int curPhase;
+
+    private final int NROF_PHASES;
 
     private final StateSpace game;
     public LassoStrategy(StateSpace game) {
         this.game = game;
         queue = new PriorityQueue<>(new OddPathComparator());
         init();
+        NROF_PHASES = queue.size();
+        curPhase = 0;
     }
+
+
 
     /**
      * Initializes the order array by finding lassos.
      * The order will be
      * 1. loops
-     * 2. paths to loops
-     * 3. paths to lassos
-     * 4. remainder
+     * 2. paths
+     * 3. remainder
      */
     private void init() {
         BitSet seen = new BitSet(game.NROF_STATES);
@@ -84,17 +91,23 @@ public class LassoStrategy extends GenericStrategy {
 
             if (s % 2 == 1) { // least priority is odd
 
-                // Construct Lasso
-                int[] beforeLoop = listToArray(prefix, 0, i, partOfLasso);
-                int[] loop = listToArray(prefix, i, prefix.size(), partOfLasso);
-
+                // Construct OddPaths
                 ArrayList<OddPath> out = new ArrayList<>();
+
+                // loop
+                int[] loop = listToRevArray(prefix, i, prefix.size(), partOfLasso);
                 OddPath lPath = new OddPath(loop, true, false, null);
-                OddPath pPath = new OddPath(beforeLoop, false, false, lPath);
                 out.add(lPath);
-                out.add(pPath);
                 for(int k : lPath) containedIn.put(k, lPath);
-                for(int k : pPath) containedIn.put(k, pPath);
+
+                // prefix
+                int[] beforeLoop = listToRevArray(prefix, 0, i, partOfLasso);
+                if (beforeLoop.length > 0) {
+                    OddPath pPath = new OddPath(beforeLoop, false, false, lPath);
+                    out.add(pPath);
+                    for(int k : pPath) containedIn.put(k, pPath);
+                }
+
                 return out;
             } else {
                 return new ArrayList<>();
@@ -104,10 +117,9 @@ public class LassoStrategy extends GenericStrategy {
             ArrayList<OddPath> out = new ArrayList<>();
 
             if (partOfLasso.get(v)) {
-                int[] beforeLoop = listToArray(prefix, 0, prefix.size(), partOfLasso);
+                int[] beforeLoop = listToRevArray(prefix, 0, prefix.size(), partOfLasso);
 
                 if (beforeLoop.length > 0) {
-                    NROF_PHASES++;
                     OddPath pPath = new OddPath(beforeLoop, false, false, containedIn.get(v));
                     out.add( pPath );
                     for (int k : pPath) containedIn.put(k, pPath);
@@ -151,20 +163,47 @@ public class LassoStrategy extends GenericStrategy {
     }
 
     /**
-     * Converts a ArrayList to array and for every element e in the new array sets partOfLasso[e] to true
+     * Converts a ArrayList to array where the order is reversed
+     * and for every element e in the new array sets partOfLasso[e] to true
      * @param in the ArrayList
      * @param lb lower bound (inclusive)
      * @param up upper bound (exclusive)
      * @param partOfLasso partOfLasso bitset
      * @return the array
      */
-    private int[] listToArray(ArrayList<Integer> in, int lb, int up, BitSet partOfLasso) {
+    private int[] listToRevArray(ArrayList<Integer> in, int lb, int up, BitSet partOfLasso) {
         int[] out = new int[up-lb];
         for (int j = lb; j < up; j++) {
-            out[j-lb] = in.get(j);
+            out[up-j-1] = in.get(j);
             partOfLasso.set(in.get(j));
         }
         return out;
     }
 
+    @Override
+    protected int[] getPhase() {
+        return phase;
+    }
+
+    @Override
+    public void nextPhase() {
+
+        if (hasNextPhase()) phase = Objects.requireNonNull(queue.poll()).path();
+        curPhase++;
+
+        if (phase == null) {
+            if (hasNextPhase()) {
+                SimpleLogger.warning("Phase is null, skipping and trying next phase.");
+                nextPhase();
+            } else {
+                SimpleLogger.warning("Phase is null, this was the last phase.");
+                phase = new int[0];
+            }
+        }
+    }
+
+    @Override
+    public boolean hasNextPhase() {
+        return curPhase < NROF_PHASES;
+    }
 }

@@ -57,21 +57,21 @@ public class GameProgressMeasure {
      */
     private int[] computeLift(int i) {
 
-        boolean isEven = game.getPriority(i) % 2 == 0;
-
-        return computeLift(i, isEven);
+        return computeLift(i, game.isOwnedByEven(i));
     }
 
     /**
      * Compute on iteration of lift
      * @param i index of progress measure
-     * @param min whether to take the min or max
+     * @param minimize whether to take the minimize or max
      * @return the lifted progress measure
      */
-    private int[] computeLift(int i, boolean min) {
-        int v = min ? TOP : 0;
+    private int[] computeLift(int i, boolean minimize) {
+        int v = minimize ? TOP : Integer.MIN_VALUE;
         int[] out = new int[SIZE];
         Arrays.fill(out, v);
+
+        boolean maximize = !minimize;
 
         int[] edges = game.getEdges(i);
         int[] m;
@@ -81,9 +81,9 @@ public class GameProgressMeasure {
 
             m = prog(w, ep);
 
-            if (    (min    && larger(out, m, ep)) ||
-                    (!min   && smaller (out, m, ep))  ) {
-                out = ro[w];
+            if (    (minimize   &&  smaller(m, out, ep)) ||
+                    (maximize   &&  larger (m, out, ep))  ) {
+                out = m;
             }
         }
 
@@ -97,19 +97,19 @@ public class GameProgressMeasure {
      * @return prog(ro, v, w)
      */
     private int[] prog(int w, int epv) {
-        if (isTop(w)) return ro[w];
+        if (isTop(w)) return ro[w].clone();
 
         int[] out = ro[w].clone();
 
         int ip = toIP(epv);
 
-        // if odd, we increase
-        if (epv % 2 == 1) {
-            increase(out, ip);
+        for (int i = ip + 1; i < out.length; i++) {
+            out[i] = 0;
         }
 
-        for (int i = ip+1; i < out.length; i++) {
-            out[i] = 0;
+        // if odd, we increase
+        if (epv % 2 == 1) {
+            out = increase(out, ip);
         }
 
         return out;
@@ -121,18 +121,23 @@ public class GameProgressMeasure {
      * @param m the progress measure
      * @param ip the (internal) position to start
      */
-    private void increase(int[] m, int ip) {
+    private int[] increase(int[] m, int ip) {
 
-        if (m[ip] == MAX_PM[ip]) {
-            if (ip == 0) {
-                Arrays.fill(m, TOP);
+        if (m[ip] != TOP) {
+
+            if (m[ip] >= MAX_PM[ip]) {
+                if (ip == 0) {
+                    Arrays.fill(m, TOP);
+                } else {
+                    m[ip] = 0;
+                    m = increase(m, ip - 1);
+                }
             } else {
-                m[ip] = 0;
-                increase(m, ip-1);
+                m[ip] += 1;
             }
-        } else {
-            m[ip] += 1;
         }
+
+        return m;
     }
 
 

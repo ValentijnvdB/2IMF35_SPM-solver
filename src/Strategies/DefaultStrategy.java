@@ -2,10 +2,10 @@ package Strategies;
 
 import java.util.stream.IntStream;
 
-public class DefaultStrategy extends GenericStrategy {
+public class DefaultStrategy extends SinglePhaseStrategy {
 
     public DefaultStrategy(int nrStates) {
-        super(1);
-        order[0] = IntStream.rangeClosed(0, nrStates-1).toArray();
+        super();
+        order = IntStream.rangeClosed(0, nrStates-1).toArray();
     }
 }

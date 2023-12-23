@@ -16,20 +16,19 @@ public class Solver {
 
         GameProgressMeasure ro = new GameProgressMeasure(game);
 
-        int s;
         BitSet notStable;
 
 
         while (strategy.hasNextPhase()) {
 
+            strategy.nextPhase();
+
             do {
 
                 notStable = new BitSet(game.NROF_STATES);
-                strategy.reset();
 
                 // iterate over all states according to the strategy
-                while (strategy.hasNext()) {
-                    s = strategy.next();
+                for (int s : strategy) {
 
                     // repeat lift until progress measure s is stable
                     while (!ro.lift(s)) {
@@ -40,10 +39,12 @@ public class Solver {
                     }
                 }
 
-                // keep iterating over all states until all states are stable
+                // keep iterating over all states in the current phase until all states are stable
+                // we leave the loop iff notStable only contains 0's, since 0 is the default value,
+                // this is only if no bit is set to 1.
             } while (!notStable.isEmpty());
 
-            strategy.nextPhase();
+
         }
 
         return ro.get();
