@@ -21,10 +21,12 @@ public class LassoStrategy extends GenericStrategy {
 
     private static final LassoComparator comparator =  new LassoComparator();
 
+    private PriorityQueue<OddPath> queue;
+
     private final StateSpace game;
     public LassoStrategy(StateSpace game) {
-        NROF_PHASES = 0;
         this.game = game;
+        queue = new PriorityQueue<>(new OddPathComparator());
         init();
     }
 
@@ -39,66 +41,36 @@ public class LassoStrategy extends GenericStrategy {
     private void init() {
         BitSet seen = new BitSet(game.NROF_STATES);
         BitSet partOfLasso = new BitSet(game.NROF_STATES);
-        HashMap<Integer, Lasso> containedIn = new HashMap<>();
+        HashMap<Integer, OddPath> containedIn = new HashMap<>();
 
-        PriorityQueue<Lasso> queue = new PriorityQueue<>(comparator);
         int i = -1;
         while (seen.cardinality() < game.NROF_STATES) {
             i = seen.nextClearBit(i+1);
-            queue.addAll(findLasso(new ArrayList<>(), i, seen, partOfLasso, containedIn));
+            queue.addAll(findOddPaths(new ArrayList<>(), i, seen, partOfLasso, containedIn));
         }
 
-        if (partOfLasso.cardinality() < game.NROF_STATES) NROF_PHASES++;
-
-        // Setup phases
-        order = new int[NROF_PHASES][];
-
-        // loops
-        ArrayList<int[]> paths = new ArrayList<>();
-        Lasso lasso = queue.poll();
-        i = 0;
-        while(lasso != null) {
-
-            if (lasso.loopLength() != 0) {
-                order[i] = lasso.loop();
-                i++;
-            }
-
-            if (lasso.pathLength() != 0) {
-                paths.add(lasso.path());
-            }
-
-            lasso = queue.poll();
-        }
-
-        // paths
-        for (int[] p : paths) {
-            order[i] = p;
-            i++;
-        }
-
-        // remainder
         int r = game.NROF_STATES - partOfLasso.cardinality();
         if (r > 0) {
             int[] remainder = new int[r];
             int s = -1;
             for (int j = 0; j < r; j++) {
-                s = partOfLasso.nextClearBit(s + 1);
+                s = partOfLasso.nextClearBit(s+1);
                 remainder[j] = s;
             }
-            order[i] = remainder;
+            queue.add(new OddPath(remainder, false, true, null));
         }
     }
 
     /**
-     * Finds a lasso starting in state v with prefix path, if one exists
-     * @param path prefix
+     * Finds a lasso starting in state v with prefix, if one exists
+     * @param prefix prefix
      * @param v the starting state
      * @param seen Which states we should ignore
      * @param partOfLasso Which states are already part of lasso
      * @return An ArrayList of found lassos
      */
-    private ArrayList<Lasso> findLasso(ArrayList<Integer> path, int v, BitSet seen, BitSet partOfLasso, HashMap<Integer, Lasso> containedIn) {
+    private ArrayList<OddPath> findOddPaths(ArrayList<Integer> prefix, int v, BitSet seen, BitSet partOfLasso,
+                                            HashMap<Integer, OddPath> containedIn) {
 
 
         if (game.isOwnedByEven(v)) {
@@ -106,40 +78,39 @@ public class LassoStrategy extends GenericStrategy {
             return new ArrayList<>();
         }
 
-        if (path.contains(v)) { // Base case, we have found a loop
-            int i = path.indexOf(v);
-            int s = minPriority(path, i, path.size());
+        if (prefix.contains(v)) { // Base case, we have found a loop
+            int i = prefix.indexOf(v);
+            int s = minPriority(prefix, i, prefix.size());
 
             if (s % 2 == 1) { // least priority is odd
 
                 // Construct Lasso
-                int[] beforeLoop = listToArray(path, 0, i, partOfLasso);
-                int[] loop = listToArray(path, i, path.size(), partOfLasso);
+                int[] beforeLoop = listToArray(prefix, 0, i, partOfLasso);
+                int[] loop = listToArray(prefix, i, prefix.size(), partOfLasso);
 
-                if (beforeLoop.length > 0) NROF_PHASES++;
-                if (loop.length > 0) NROF_PHASES++;
-
-                ArrayList<Lasso> out = new ArrayList<>();
-                Lasso lasso = new Lasso(beforeLoop, loop, null);
-                out.add(lasso);
-                for(int k : lasso.loop()) containedIn.put(k, lasso);
-                for(int k : lasso.path()) containedIn.put(k, lasso);
+                ArrayList<OddPath> out = new ArrayList<>();
+                OddPath lPath = new OddPath(loop, true, false, null);
+                OddPath pPath = new OddPath(beforeLoop, false, false, lPath);
+                out.add(lPath);
+                out.add(pPath);
+                for(int k : lPath) containedIn.put(k, lPath);
+                for(int k : pPath) containedIn.put(k, pPath);
                 return out;
             } else {
                 return new ArrayList<>();
             }
 
         } else if (seen.get(v)) {
-            ArrayList<Lasso> out = new ArrayList<>();
+            ArrayList<OddPath> out = new ArrayList<>();
 
             if (partOfLasso.get(v)) {
-                int[] beforeLoop = listToArray(path, 0, path.size(), partOfLasso);
+                int[] beforeLoop = listToArray(prefix, 0, prefix.size(), partOfLasso);
 
                 if (beforeLoop.length > 0) {
                     NROF_PHASES++;
-                    Lasso lasso = new Lasso(beforeLoop, new int[]{}, containedIn.get(v));
-                    out.add( lasso );
-                    for (int k : lasso.path()) containedIn.put(k, lasso);
+                    OddPath pPath = new OddPath(beforeLoop, false, false, containedIn.get(v));
+                    out.add( pPath );
+                    for (int k : pPath) containedIn.put(k, pPath);
                 }
             }
 
@@ -148,19 +119,18 @@ public class LassoStrategy extends GenericStrategy {
             seen.set(v);
 
             int[] outEdges = game.getEdges(v);
-            ArrayList<Lasso> lassos = new ArrayList<>();
-            path.add(v);
+            ArrayList<OddPath> out = new ArrayList<>();
+            prefix.add(v);
 
             // Go over all edges of (v, w)
             for (int w : outEdges) {
                 if (game.isOwnedByOdd(w)) {
-                    lassos.addAll(findLasso(path, w, seen, partOfLasso, containedIn));
-                    break;
+                    out.addAll(findOddPaths(prefix, w, seen, partOfLasso, containedIn));
+                    if (!out.isEmpty()) break;
                 }
             }
-            path.remove(path.size()-1);
-            return lassos;
-
+            prefix.remove(prefix.size()-1);
+            return out;
         }
     }
 
