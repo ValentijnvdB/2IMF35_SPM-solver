@@ -73,7 +73,7 @@ public class GameProgressMeasure {
 
         boolean maximize = !minimize;
 
-        int[] edges = game.getEdges(i);
+        int[] edges = game.getOutgoingEdges(i);
         int[] m;
         int ep = game.getPriority(i);
 

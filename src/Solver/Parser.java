@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.BitSet;
+import java.util.HashMap;
 import java.util.Scanner;
 
 public class Parser {
@@ -27,6 +28,8 @@ public class Parser {
         int maxPriority = 0;
 
         ArrayList<Integer> inputOrder = new ArrayList<>(nrStates);
+        HashMap<Integer, ArrayList<Integer>> revAdjMap = new HashMap<>();
+
 
         scanner.nextLine();
 
@@ -50,23 +53,41 @@ public class Parser {
             if (Integer.parseInt(split[2]) == 0) ownedByEven.set(i, true);
 
             // edges
+            ArrayList<Integer> list;
 
             tokens = split[3].replace(";", "").split(",");
             nums = new int[tokens.length];
             for (int j = 0; j < tokens.length; j++) {
                 nums[j] = Integer.parseInt(tokens[j]);
+
+                // reverse
+                list = revAdjMap.getOrDefault(nums[j], new ArrayList<>());
+                list.add(i);
+                revAdjMap.put(nums[j], list);
             }
             adj[i] = nums;
         }
 
         scanner.close();
 
+        // convert input order
         int[] order = new int[inputOrder.size()];
         for (int j = 0; j < inputOrder.size(); j++) {
             order[j] = inputOrder.get(j);
         }
 
-        return new StateSpace(nrStates, maxPriority, adj, priority, ownedByEven, order);
+        // convert reverse adjacency
+        int[][] revAdj = new int[nrStates][];
+        ArrayList<Integer> list;
+        for (int j = 0; j < nrStates; j++) {
+            list = revAdjMap.getOrDefault(j, new ArrayList<>());
+            revAdj[j] = new int[list.size()];
+            for (int k = 0; k < list.size(); k++) {
+                revAdj[j][k] = list.get(k);
+            }
+        }
+
+        return new StateSpace(nrStates, maxPriority, adj, revAdj, priority, ownedByEven, order);
     }
 
 }

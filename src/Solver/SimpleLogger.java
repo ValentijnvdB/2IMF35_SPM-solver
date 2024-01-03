@@ -48,8 +48,8 @@ public class SimpleLogger {
     }
 
     public static void error(Exception e) {
-        writeln("*** EXCEPTION: " + e.getMessage() + " ***");
-        writeln(e.toString());
+        writeln("*** " + e.toString() + " ***");
+        e.printStackTrace();
     }
 
     public static void writeln(String string) {

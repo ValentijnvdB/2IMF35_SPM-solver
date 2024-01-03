@@ -29,7 +29,7 @@ public class LassoStrategy extends GenericStrategy {
 
 
     /**
-     * Initializes the order array by finding lassos.
+     * Initializes the queue by finding odd paths.
      * The order will be
      * 1. loops
      * 2. paths
@@ -120,7 +120,7 @@ public class LassoStrategy extends GenericStrategy {
         } else {
             seen.set(v);
 
-            int[] outEdges = game.getEdges(v);
+            int[] outEdges = game.getOutgoingEdges(v);
             ArrayList<OddPath> out = new ArrayList<>();
             prefix.add(v);
 

@@ -1,9 +1,6 @@
 package Solver;
 
-import Strategies.GenericStrategy;
-import Strategies.InputOrder;
-import Strategies.LassoStrategy;
-import Strategies.RandomOrder;
+import Strategies.*;
 
 import java.util.BitSet;
 
@@ -22,6 +19,7 @@ public class SPMSolver {
             GenericStrategy inOrder = new InputOrder(game.getOrder());
             GenericStrategy random = new RandomOrder(game.NROF_STATES);
             GenericStrategy lasso = new LassoStrategy(game);
+            GenericStrategy reverseEdge = new ReverseEdgeStrategy(game);
 
             BitSet oddWins = Solver.solve(game, lasso);
 

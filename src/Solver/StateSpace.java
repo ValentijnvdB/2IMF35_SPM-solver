@@ -7,6 +7,8 @@ public class StateSpace {
 
     private final int[][] adj;
 
+    private final int[][] revAdj;
+
     private final int[] priority;
 
     private final int[] order;
@@ -16,10 +18,11 @@ public class StateSpace {
     public final int NROF_STATES;
     public final int MAX_PRIORITY;
 
-    public StateSpace(int nrStates, int maxPriority, int[][] adj, int[] priority, BitSet ownedByEven, int[] order) {
+    public StateSpace(int nrStates, int maxPriority, int[][] adj, int[][] revAdj, int[] priority, BitSet ownedByEven, int[] order) {
         this.NROF_STATES = nrStates;
         this.MAX_PRIORITY = maxPriority;
         this.adj = adj;
+        this.revAdj = revAdj;
         this.priority = priority;
         this.ownedByEven = ownedByEven;
         this.order = order;
@@ -43,8 +46,12 @@ public class StateSpace {
         return 1;
     }
 
-    public int[] getEdges(int i) {
+    public int[] getOutgoingEdges(int i) {
         return adj[i];
+    }
+
+    public int[] getIncomingEdges(int i) {
+        return revAdj[i];
     }
 
     public int[] countPriorities() {
