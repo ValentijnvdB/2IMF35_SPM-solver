@@ -4,6 +4,9 @@ import Solver.StateSpace;
 
 import java.util.*;
 
+/**
+ * Orders the vertices by picking a vertex, then traversing the graph backwards using BFS
+ */
 public class ReverseEdgeStrategy extends SinglePhaseStrategy {
 
 
@@ -14,6 +17,9 @@ public class ReverseEdgeStrategy extends SinglePhaseStrategy {
         init();
     }
 
+    /**
+     * Initialize the order array.
+     */
     private void init() {
         HashMap<Integer, ArrayList<Integer>> map = new HashMap<>();
         PriorityQueue<Integer> lengths = new PriorityQueue<>();
@@ -21,7 +27,7 @@ public class ReverseEdgeStrategy extends SinglePhaseStrategy {
         for (int i = 0; i < game.NROF_STATES; i++) {
             int[] edges = game.getOutgoingEdges(i);
             int length = edges.length;
-            // if state i only has a self-loop evaluate this first
+            // if state v_i only has a self-loop evaluate this first
             if (length == 1 && edges[0] == i) {
                 length = -1;
             }
@@ -51,7 +57,7 @@ public class ReverseEdgeStrategy extends SinglePhaseStrategy {
     /**
      * Walks reverse edges and adds each vertex it sees to the end of this.order
      * @param startStates the first states in the queue
-     * @param processed BitSet where index i is true iff state i has been processed already
+     * @param processed BitSet where index i is true iff state v_i has been processed already
      * @param i first empty spot in this.order
      * @return the new first empty spot in this.order
      */
