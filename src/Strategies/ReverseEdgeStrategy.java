@@ -19,10 +19,15 @@ public class ReverseEdgeStrategy extends SinglePhaseStrategy {
         PriorityQueue<Integer> lengths = new PriorityQueue<>();
 
         for (int i = 0; i < game.NROF_STATES; i++) {
-            int length = game.getOutgoingEdges(i).length;
+            int[] edges = game.getOutgoingEdges(i);
+            int length = edges.length;
+            // if state i only has a self-loop evaluate this first
+            if (length == 1 && edges[0] == i) {
+                length = -1;
+            }
 
             ArrayList<Integer> list = map.getOrDefault(length, new ArrayList<>());
-            list .add(i);
+            list.add(i);
             map.put(length, list);
 
             if (!lengths.contains(length)) lengths.add(length);
