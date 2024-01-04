@@ -22,13 +22,13 @@ public class ReverseEdgeStrategy extends SinglePhaseStrategy {
      */
     private void init() {
         HashMap<Integer, ArrayList<Integer>> map = new HashMap<>();
-        PriorityQueue<Integer> lengths = new PriorityQueue<>();
+        PriorityQueue<Integer> lengths = new PriorityQueue<>(Collections.reverseOrder());
 
         for (int i = 0; i < game.NROF_STATES; i++) {
             int[] edges = game.getOutgoingEdges(i);
-            int length = edges.length;
+            int length = game.getIncomingEdges(i).length;
             // if state v_i only has a self-loop evaluate this first
-            if (length == 1 && edges[0] == i) {
+            if (edges.length == 1 && edges[0] == i) {
                 length = -1;
             }
 
