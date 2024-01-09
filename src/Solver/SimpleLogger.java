@@ -47,7 +47,7 @@ public class SimpleLogger {
        writeln("*** WARNING: " + warning + " ***");
     }
 
-    public static void error(Exception e) {
+    public static void exception(Exception e) {
         writeln("*** " + e.toString() + " ***");
         e.printStackTrace();
     }

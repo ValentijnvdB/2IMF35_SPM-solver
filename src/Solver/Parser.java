@@ -2,6 +2,7 @@ package Solver;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.nio.file.Path;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.BitSet;
@@ -9,6 +10,10 @@ import java.util.HashMap;
 import java.util.Scanner;
 
 public class Parser {
+
+    public static StateSpace parse(Path path) throws FileNotFoundException, ParseException {
+        return parse(path.toString());
+    }
 
     public static StateSpace parse(String path) throws FileNotFoundException, ParseException {
 
@@ -25,6 +30,7 @@ public class Parser {
         int[][] adj = new int[nrStates][];
         int[] priority = new int[nrStates];
         BitSet ownedByEven = new BitSet(nrStates);
+        String[] names = new String[nrStates];
         int maxPriority = 0;
 
         ArrayList<Integer> inputOrder = new ArrayList<>(nrStates);
@@ -66,6 +72,10 @@ public class Parser {
                 revAdjMap.put(nums[j], list);
             }
             adj[i] = nums;
+
+            if (split.length > 4) {
+                names[i] = split[4].replace(";", "");
+            }
         }
 
         scanner.close();
@@ -86,8 +96,10 @@ public class Parser {
                 revAdj[j][k] = list.get(k);
             }
         }
+        File f = new File(path);
 
-        return new StateSpace(nrStates, maxPriority, adj, revAdj, priority, ownedByEven, order);
+
+        return new StateSpace(nrStates, maxPriority, adj, revAdj, priority, ownedByEven, order, f.getName(), names);
     }
 
 }

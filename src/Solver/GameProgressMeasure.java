@@ -34,6 +34,8 @@ public class GameProgressMeasure {
      * @return true iff pm is stable
      */
     public boolean lift(int i) {
+        SPMSolver.lifted++;
+
         if (isTop(i)) return true;
 
         int[] old = ro[i];

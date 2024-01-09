@@ -13,12 +13,16 @@ public class StateSpace {
 
     private final int[] order;
 
+    private final String[] names;
+
     private final BitSet ownedByEven;
 
     public final int NROF_STATES;
     public final int MAX_PRIORITY;
 
-    public StateSpace(int nrStates, int maxPriority, int[][] adj, int[][] revAdj, int[] priority, BitSet ownedByEven, int[] order) {
+    public final String NAME;
+
+    public StateSpace(int nrStates, int maxPriority, int[][] adj, int[][] revAdj, int[] priority, BitSet ownedByEven, int[] order, String name, String[] names) {
         this.NROF_STATES = nrStates;
         this.MAX_PRIORITY = maxPriority;
         this.adj = adj;
@@ -26,6 +30,8 @@ public class StateSpace {
         this.priority = priority;
         this.ownedByEven = ownedByEven;
         this.order = order;
+        this.NAME = name;
+        this.names = names;
     }
 
 
